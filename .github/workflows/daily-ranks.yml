@@ -1,0 +1,65 @@
+# 方案 C：每日榜单更新 + 自动发布静态数据源（GitHub Pages）
+# 每天 UTC 20:30（北京时间次日 04:30）跑一次八榜爬取，
+# 产物自动发布到 gh-pages 分支 → https://<owner>.github.io/<repo>/ranks-apple.json
+name: daily-ranks
+
+on:
+  schedule:
+    - cron: "30 20 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-ranks
+  cancel-in-progress: false
+
+jobs:
+  update-ranks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Ensure Chrome
+        run: |
+          if ! command -v google-chrome >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq google-chrome-stable || true
+          fi
+          echo "BROWSER_PATH=$(command -v google-chrome || command -v google-chrome-stable || true)" >> "$GITHUB_ENV"
+
+      - name: Run daily update (8 ranks)
+        run: node scripts/daily-update.js --out-dir dist/ranks
+        env:
+          BROWSER_PATH: ${{ env.BROWSER_PATH }}
+
+      - name: Sign apple feed (optional)
+        if: ${{ secrets.RANK_SIGNING_KEY != '' }}
+        run: |
+          echo "${{ secrets.RANK_SIGNING_KEY }}" > update-keys.json
+          node scripts/sign-feed.js --file dist/ranks/ranks-apple.json --key update-keys.json
+          echo "PUBLIC_KEY<<EOF" >> "$GITHUB_ENV"
+          node -e "const k=require('./update-keys.json');process.stdout.write(k.publicKey)" >> "$GITHUB_ENV"
+          echo "EOF" >> "$GITHUB_ENV"
+
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist/ranks
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: "ranks: daily update $(date -u +%Y-%m-%d)"
+
+      - name: Report feed URLs
+        run: |
+          REPO="${{ github.repository }}"
+          echo "数据源 URL:"
+          echo "  https://$(echo "$REPO" | cut -d/ -f1).github.io/$(echo "$REPO" | cut -d/ -f2)/ranks-apple.json"
+          echo "  https://$(echo "$REPO" | cut -d/ -f1).github.io/$(echo "$REPO" | cut -d/ -f2)/ranks.csv"

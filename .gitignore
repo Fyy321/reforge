@@ -1,0 +1,7 @@
+# 忽略本地产物
+mirrors/
+server.log
+task.log
+*.tmp
+node_modules/
+.DS_Store

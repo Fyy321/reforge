@@ -1,0 +1,7 @@
+Content-Length: 150
+
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke","version":"1"}}}Content-Length: 58
+
+{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}Content-Length: 383
+
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"parse_wechat_html","arguments":{"html":"<html><head><meta property=\"og:title\" content=\"SmokeTitle\"><meta name=\"author\" content=\"SmokeAuthor\"></head><body><div id=\"js_content\"><p>Smoke body content. Smoke body content. Smoke body content.</p></div></body></html>","page_url":"https://mp.weixin.qq.com/s/abc"}}}

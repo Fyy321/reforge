@@ -1,0 +1,20 @@
+{
+  "name": "reforge",
+  "version": "0.1.0",
+  "description": "Reforge — 通用逆向工具（MCP + CLI）：网页抓取/渲染、公众号文章提取、PE/ELF/Mach-O 二进制分析、JS/Electron 包解析。零运行时依赖。",
+  "type": "module",
+  "bin": {
+    "reforge": "src/cli.js",
+    "reforge-mcp": "src/mcp-server.js"
+  },
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/",
+    "mcp": "node src/mcp-server.js"
+  },
+  "keywords": ["mcp", "reverse-engineering", "scraper", "wechat", "pe", "elf", "binary-analysis"],
+  "license": "MIT"
+}
