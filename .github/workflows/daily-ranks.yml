@@ -34,10 +34,21 @@ jobs:
           fi
           echo "BROWSER_PATH=$(command -v google-chrome || command -v google-chrome-stable || true)" >> "$GITHUB_ENV"
 
-      - name: Run daily update (8 ranks)
-        run: node scripts/daily-update.js --out-dir dist/ranks
+      - name: Run daily update (8 ranks, 自动重试 2 次)
+        shell: bash
         env:
           BROWSER_PATH: ${{ env.BROWSER_PATH }}
+        run: |
+          for attempt in 1 2 3; do
+            echo "== 第 $attempt 次尝试 =="
+            if node scripts/daily-update.js --out-dir dist/ranks; then
+              echo "== 成功 =="
+              exit 0
+            fi
+            echo "== 失败，60 秒后重试 =="
+            sleep 60
+          done
+          exit 1
 
       - name: Sign apple feed (optional)
         shell: bash
