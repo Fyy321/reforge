@@ -1,40 +1,34 @@
-ï»¿@echo off
-chcp 65001 >nul
+@echo off
 setlocal
-title æ¨é€åˆ° GitHub
+title ÍÆËÍµ½ GitHub
 
-rem 1) ä¿è¯èƒ½æ‰¾åˆ° gitï¼ˆæ–°è£…çš„ git æœ‰æ—¶è¦æ‰‹åŠ¨åŠ è·¯å¾„ï¼‰
+rem 1) ±£Ö¤ÄÜÕÒµ½ git£¨ĞÂ×°µÄ git ÓĞÊ±ÒªÊÖ¶¯¼ÓÂ·¾¶£©
 if exist "C:\Program Files\Git\cmd\git.exe" set "PATH=C:\Program Files\Git\cmd;%PATH%"
 git --version >nul 2>&1
 if errorlevel 1 (
-  echo [é”™è¯¯] æ²¡æœ‰æ‰¾åˆ° gitï¼Œæ­£åœ¨é‡æ–°è¯»å–ç³»ç»Ÿè·¯å¾„...
-  set "PATH=%PATH%"
-  git --version >nul 2>&1
-  if errorlevel 1 (
-    echo ä»ç„¶æ‰¾ä¸åˆ° gitã€‚è¯·é‡å¯ç”µè„‘åå†åŒå‡»æœ¬æ–‡ä»¶ã€‚
-    pause
-    exit /b 1
-  )
+  echo [´íÎó] Ã»ÓĞÕÒµ½ git¡£ÇëÖØÆôµçÄÔºóÔÙË«»÷±¾ÎÄ¼ş¡£
+  pause
+  exit /b 1
 )
 
-rem 2) è¿›å…¥ reforge ç›®å½•
+rem 2) ½øÈë reforge Ä¿Â¼
 cd /d "%~dp0"
 
-rem 3) è¾“å…¥ GitHub ä¿¡æ¯
+rem 3) ÊäÈë GitHub ĞÅÏ¢
 set "GHUSER="
-set /p GHUSER=ä½ çš„ GitHub ç”¨æˆ·å: 
+set /p GHUSER=ÄãµÄ GitHub ÓÃ»§Ãû: 
 if "%GHUSER%"=="" (
-  echo ç”¨æˆ·åä¸èƒ½ä¸ºç©ºï¼Œé‡æ–°è¿è¡Œæœ¬æ–‡ä»¶ã€‚
+  echo ÓÃ»§Ãû²»ÄÜÎª¿Õ£¬ÖØĞÂÔËĞĞ±¾ÎÄ¼ş¡£
   pause
   exit /b 1
 )
 set "GHREPO="
-set /p GHREPO=ä»“åº“åï¼ˆç›´æ¥å›è½¦é»˜è®¤ reforgeï¼‰: 
+set /p GHREPO=²Ö¿âÃû£¨Ö±½Ó»Ø³µÄ¬ÈÏ reforge£©: 
 if "%GHREPO%"=="" set "GHREPO=reforge"
 
 echo.
-echo æ­£åœ¨æ¨é€åˆ° https://github.com/%GHUSER%/%GHREPO%.git ...
-echo å¦‚æœå¼¹å‡ºæµè§ˆå™¨è¯·ç™»å½• GitHub å¹¶æˆæƒã€‚
+echo ÕıÔÚÍÆËÍµ½ https://github.com/%GHUSER%/%GHREPO%.git ...
+echo Èç¹ûµ¯³öä¯ÀÀÆ÷ÇëµÇÂ¼ GitHub ²¢ÊÚÈ¨¡£
 echo.
 
 git branch -M main
@@ -43,22 +37,24 @@ git remote add origin https://github.com/%GHUSER%/%GHREPO%.git
 git push -u origin main
 if errorlevel 1 (
   echo.
-  echo [æ¨é€å¤±è´¥] å¸¸è§åŸå› ï¼š
-  echo   1. GitHub ä¸Šè¿˜æ²¡æœ‰åˆ›å»ºåä¸º %GHREPO% çš„ä»“åº“ï¼ˆå» github.com ç‚¹ New repository å…ˆå»ºä¸€ä¸ªç©ºä»“åº“ï¼‰
-  echo   2. æµè§ˆå™¨ç™»å½•çª—å£è¢«å…³é—­
-  echo è§£å†³åé‡æ–°åŒå‡»æœ¬æ–‡ä»¶å³å¯ã€‚
+  echo [ÍÆËÍÊ§°Ü] ³£¼ûÔ­Òò:
+  echo   1. GitHub ÉÏ»¹Ã»ÓĞ´´½¨ÃûÎª %GHREPO% µÄ²Ö¿â
+  echo      ÇëÏÈÈ¥ https://github.com/new ´´½¨¿Õ²Ö¿âÔÙ»ØÀ´ÖØĞÂË«»÷±¾ÎÄ¼ş
+  echo   2. ä¯ÀÀÆ÷µÇÂ¼´°¿Ú±»¹Ø±ÕÁË
+  echo   3. ÓÃ»§Ãû»ò²Ö¿âÃûÊäÈëÓĞÎó
+  echo ½â¾öºóÖØĞÂË«»÷±¾ÎÄ¼ş¼´¿É¡£
   pause
   exit /b 1
 )
 
 echo.
 echo ============================================
-echo æ¨é€å®Œæˆï¼æ¥ä¸‹æ¥ä¸¤æ­¥ç½‘é¡µæ“ä½œ:
-echo   1. æ‰“å¼€ https://github.com/%GHUSER%/%GHREPO%/settings/pages
-echo      Source é€‰ Deploy from a branchï¼Œåˆ†æ”¯é€‰ gh-pagesï¼Œä¿å­˜
-echo   2. æ‰“å¼€ https://github.com/%GHUSER%/%GHREPO%/actions
-echo      ç‚¹å·¦ä¾§ daily-ranksï¼Œå³ä¾§ Run workflow æ‰‹åŠ¨è·‘ç¬¬ä¸€æ¬¡
-echo æ•°æ®æºç½‘å€ï¼ˆç»™è‹¹æœè½¯ä»¶ç”¨ï¼‰:
+echo ÍÆËÍÍê³É£¡½ÓÏÂÀ´Á½²½ÍøÒ³²Ù×÷:
+echo   1. ´ò¿ª https://github.com/%GHUSER%/%GHREPO%/settings/pages
+echo      Source Ñ¡ Deploy from a branch£¬·ÖÖ§Ñ¡ gh-pages£¬±£´æ
+echo   2. ´ò¿ª https://github.com/%GHUSER%/%GHREPO%/actions
+echo      µã×ó²à daily-ranks£¬ÓÒ²à Run workflow ÊÖ¶¯ÅÜµÚÒ»´Î
+echo Êı¾İÔ´ÍøÖ·£¨¸øÆ»¹ûÈí¼şÓÃ£©:
 echo   https://%GHUSER%.github.io/%GHREPO%/ranks-apple.json
 echo ============================================
 pause
