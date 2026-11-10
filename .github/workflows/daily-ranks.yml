@@ -40,13 +40,19 @@ jobs:
           BROWSER_PATH: ${{ env.BROWSER_PATH }}
 
       - name: Sign apple feed (optional)
-        if: ${{ secrets.RANK_SIGNING_KEY != '' }}
+        shell: bash
+        env:
+          RANK_SIGNING_KEY: ${{ secrets.RANK_SIGNING_KEY }}
         run: |
-          echo "${{ secrets.RANK_SIGNING_KEY }}" > update-keys.json
-          node scripts/sign-feed.js --file dist/ranks/ranks-apple.json --key update-keys.json
-          echo "PUBLIC_KEY<<EOF" >> "$GITHUB_ENV"
-          node -e "const k=require('./update-keys.json');process.stdout.write(k.publicKey)" >> "$GITHUB_ENV"
-          echo "EOF" >> "$GITHUB_ENV"
+          if [ -n "$RANK_SIGNING_KEY" ]; then
+            echo "$RANK_SIGNING_KEY" > update-keys.json
+            node scripts/sign-feed.js --file dist/ranks/ranks-apple.json --key update-keys.json
+            echo "PUBLIC_KEY<<EOF" >> "$GITHUB_ENV"
+            node -e "const k=JSON.parse(require('fs').readFileSync('update-keys.json','utf8'));process.stdout.write(k.publicKey)" >> "$GITHUB_ENV"
+            echo "EOF" >> "$GITHUB_ENV"
+          else
+            echo "未配置签名密钥，跳过签名"
+          fi
 
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
