@@ -14,45 +14,43 @@ if errorlevel 1 (
 rem 2) 进入 reforge 目录
 cd /d "%~dp0"
 
-rem 3) 输入 GitHub 信息（默认已填好，直接回车即可）
+rem 3) 日志（供诊断，全部输出都会写进这个文件）
+set "LOG=%~dp0publish-log.txt"
+echo === 运行时间 %date% %time% === > "%LOG%"
+
+rem 4) 输入 GitHub 信息（默认已填好，直接回车即可）
 set "GHUSER=Fyy321"
 set /p GHUSER=GitHub 用户名（直接回车=Fyy321）: 
 set "GHREPO=reforge"
 set /p GHREPO=仓库名（直接回车=reforge）: 
 
-echo.
-echo 正在连接 https://github.com/%GHUSER%/%GHREPO%.git ...
+echo 正在连接 https://github.com/%GHUSER%/%GHREPO%.git ... >> "%LOG%"
 echo 如果弹出浏览器请登录 GitHub 账号 %GHUSER% 并点绿色授权按钮。
 echo.
 
-rem 4) 先探测仓库是否可见（显示真实错误）
-git ls-remote https://github.com/%GHUSER%/%GHREPO%.git >nul 2>&1
+rem 5) 先探测仓库连接（真实错误写日志）
+git ls-remote https://github.com/%GHUSER%/%GHREPO%.git >> "%LOG%" 2>&1
 if errorlevel 1 (
-  echo [连接失败] 真实错误信息如下:
-  git ls-remote https://github.com/%GHUSER%/%GHREPO%.git
-  echo.
-  echo 对照处理:
-  echo   - 显示 Repository not found = 用户名或仓库名与 GitHub 上不一致
-  echo   - 显示 Authentication failed = 登录授权没完成，先执行:
-  echo       git credential-manager github logout
-  echo     然后重新双击本文件，浏览器会重新弹登录
+  echo [连接失败] 错误已写入 publish-log.txt，正在显示:
+  type "%LOG%"
   pause
   exit /b 1
 )
 
 echo 连接成功，开始推送...
 echo.
-git branch -M main
-git remote remove origin 2>nul
-git remote add origin https://github.com/%GHUSER%/%GHREPO%.git
-git push -u origin main
+git branch -M main >> "%LOG%" 2>&1
+git remote remove origin >> "%LOG%" 2>&1
+git remote add origin https://github.com/%GHUSER%/%GHREPO%.git >> "%LOG%" 2>&1
+git push -u origin main >> "%LOG%" 2>&1
 if errorlevel 1 (
-  echo.
-  echo [推送失败] 真实错误信息已在上方，解决后重新双击本文件。
+  echo [推送失败] 完整错误已写入 publish-log.txt，正在显示:
+  type "%LOG%"
   pause
   exit /b 1
 )
 
+echo 推送完成！ >> "%LOG%"
 echo.
 echo ============================================
 echo 推送完成！接下来两步网页操作:
