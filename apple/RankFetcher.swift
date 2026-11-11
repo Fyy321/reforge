@@ -35,6 +35,7 @@ public struct RankBook: Codable, Hashable, Sendable {
 public struct RankList: Codable, Hashable, Sendable {
     public let kind: String
     public let name: String
+    public let group: String?
     public let ok: Bool
     public let source: String?
     public let totalsNote: String?
@@ -45,8 +46,8 @@ public struct RanksFeed: Codable, Sendable {
     public let generatedAt: String
     public let ranks: [RankList]
 
-    public func rank(_ kind: String) -> RankList? {
-        ranks.first { $0.kind == kind }
+    public func rank(_ kind: String, group: String = "主站") -> RankList? {
+        ranks.first { $0.kind == kind && ($0.group ?? "主站") == group }
     }
 }
 

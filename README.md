@@ -207,7 +207,7 @@ node src/cli.js chapter-mirror 神宠供应商 第69章          # 聚合镜像�
 | **A. Mac 本地 launchd 每日任务** | 用户 Mac 上 launchd 定点跑 | Node + Edge/Chrome | macOS 桌面应用 |
 | B. App 内嵌定时器 | App 运行期间 | 无 | 不推荐（App 关了就断更） |
 
-**服务端每日任务**（一次跑全八榜，产物三格式）：
+**服务端每日任务**（一次跑主站 11 榜与女频 2 榜，产物三格式）：
 
 ```bash
 node scripts/daily-update.js --out-dir ./daily-ranks

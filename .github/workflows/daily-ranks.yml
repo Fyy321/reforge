@@ -1,5 +1,5 @@
 # 方案 C：每日榜单更新 + 自动发布静态数据源（GitHub Pages）
-# 每天 UTC 20:30（北京时间次日 04:30）跑一次八榜爬取，
+# 每天 UTC 20:30（北京时间次日 04:30）跑一次主站 11 榜与女频 2 榜，
 # 产物自动发布到 gh-pages 分支 → https://<owner>.github.io/<repo>/ranks-apple.json
 name: daily-ranks
 
@@ -34,7 +34,7 @@ jobs:
           fi
           echo "BROWSER_PATH=$(command -v google-chrome || command -v google-chrome-stable || true)" >> "$GITHUB_ENV"
 
-      - name: Run daily update (8 ranks, 自动重试 2 次)
+      - name: Run daily update (13 ranks, 自动重试 2 次)
         shell: bash
         env:
           BROWSER_PATH: ${{ env.BROWSER_PATH }}

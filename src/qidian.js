@@ -19,6 +19,8 @@ const RANK_KINDS = {
   pubnewbook: { name: "未签约新书榜", url: "https://www.qidian.com/rank/pubnewbook/" },
   signnewbook: { name: "签约新书榜", url: "https://www.qidian.com/rank/signnewbook/" },
   mm: { name: "女生精选榜", url: "https://www.qidian.com/rank/mm/" },
+  mm_yuepiao: { name: "月票榜", url: "https://www.qidian.com/rank/mm/yuepiao/", group: "女频" },
+  mm_hotsales: { name: "畅销榜", url: "https://www.qidian.com/rank/mm/hotsales/", group: "女频" },
 };
 
 // 渲染榜单页（执行 Qidian 的 probe 挑战后取真实 DOM）
@@ -49,7 +51,7 @@ export async function fetchQidianRankPage(kind, { waitMs = 12000, timeoutMs = 90
   if (html.length < 2000 || html.includes("probe.js")) {
     throw new Error("渲染结果疑似仍被反爬挑战拦截");
   }
-  return { kind, name: conf.name, url: conf.url, html, browser };
+  return { kind, name: conf.name, url: conf.url, html, browser, group: conf.group || "主站" };
 }
 
 // 下载并缓存 woff 字体解码器
@@ -169,26 +171,31 @@ export async function getQidianRank(kind, options = {}) {
   const page = await fetchQidianRankPage(kind, options);
   const parsed = await parseQidianRank(page.html);
   const withTotal = parsed.books.filter((b) => b.total && b.total.length > 0).length;
-  if (withTotal < Math.max(3, parsed.books.length / 2)) {
+  if (!kind.startsWith("mm_") && withTotal < Math.max(3, parsed.books.length / 2)) {
     // PC 端数值可能走 ajax 接口（readindex/newfans/recom/collect/vipcollect）
     try {
       const ajax = await fetchRankAjax(kind, options);
       if (ajax.books && ajax.books.length > 0) {
         const merged = mergeAjaxTotals(parsed, ajax);
         return {
-          kind, name: page.name, url: page.url, browser: page.browser,
+          kind, name: page.name, url: page.url, browser: page.browser, group: page.group,
           dataSource: ajax.source, panels: parsed.panels, count: parsed.count, books: merged,
         };
       }
     } catch { /* ajax 失败继续 */ }
     // 其余榜单（hotsales/retention/vipup）数值由签名接口下发，匿名会话不可得
     return {
-      kind, name: page.name, url: page.url, browser: page.browser,
+      kind, name: page.name, url: page.url, browser: page.browser, group: page.group,
       panels: parsed.panels, count: parsed.count, books: parsed.books,
       totalsNote: "该榜单数值由签名接口异步下发，匿名会话不返回；书目/作者/分类/章节完整。",
     };
   }
-  return { kind, name: page.name, url: page.url, browser: page.browser, dataSource: "ssr", panels: parsed.panels, count: parsed.count, books: parsed.books };
+  return { kind, name: page.name, url: page.url, browser: page.browser, group: page.group,
+    dataSource: "ssr", panels: parsed.panels, count: parsed.count, books: parsed.books,
+    ...(withTotal < Math.max(3, parsed.books.length / 2) ? {
+      totalsNote: "该榜单数值由签名接口异步下发，匿名会话不返回；书目/作者/分类/章节完整。",
+    } : {}),
+  };
 }
 
 const AJAX_KIND_SUFFIX = {

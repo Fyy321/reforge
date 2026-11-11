@@ -11,8 +11,9 @@ const argVal = (name) => {
   return i !== -1 && args[i + 1] ? args[i + 1] : null;
 };
 const kindsArg = argVal("--kinds");
-// 默认主站十一榜（四要素齐备）。signnewbook 页面结构不同（0 本）、mm 为女生网入口页（仅书名+封面），不在默认集合
-const DEFAULT_KINDS = ["yuepiao", "hotsales", "recom", "collect", "readindex", "retention", "potential", "newfans", "vipup", "vipcollect", "pubnewbook"];
+// 默认主站十一榜 + 女频两榜；增删榜单只调整此清单与 src/qidian.js 的端点配置。
+// signnewbook 页面结构不同（0 本）、mm 为女生网入口页（仅书名+封面），不在默认集合
+const DEFAULT_KINDS = ["yuepiao", "hotsales", "recom", "collect", "readindex", "retention", "potential", "newfans", "vipup", "vipcollect", "pubnewbook", "mm_yuepiao", "mm_hotsales"];
 const kinds = kindsArg ? kindsArg.split(",").filter(Boolean) : DEFAULT_KINDS;
 const outDir = path.resolve(argVal("--out-dir") || "./daily-ranks");
 fs.mkdirSync(outDir, { recursive: true });
@@ -28,6 +29,7 @@ for (const kind of kinds) {
     result.kinds[kind] = {
       name: r.name,
       url: r.url,
+      group: r.group || "主站",
       ok: true,
       tookMs: Date.now() - t0,
       source: r.dataSource || "ssr",
@@ -40,7 +42,7 @@ for (const kind of kinds) {
         cover: normalizeCover(b.cover || "", b.bid),
       })),
     };
-    console.log(`[ok]   ${kind} (${r.name}) ${r.count} 本 ${Date.now() - t0}ms`);
+    console.log(`[ok]   ${kind} (${r.group || "主站"} · ${r.name}) ${r.count} 本 ${Date.now() - t0}ms`);
   } catch (e) {
     failures++;
     result.kinds[kind] = { name: kind, ok: false, error: String(e.message || e) };
@@ -58,7 +60,7 @@ fs.renameSync(tmp, jsonPath);
 const apple = {
   generatedAt: result.generatedAt,
   ranks: Object.entries(result.kinds).map(([kind, v]) => ({
-    kind, name: v.name, ok: v.ok, source: v.source || null,
+    kind, name: v.name, group: v.group || "主站", ok: v.ok, source: v.source || null,
     totalsNote: v.totalsNote || null,
     books: v.books || [],
   })),
