@@ -1,11 +1,12 @@
 # 方案 C：每日榜单更新 + 自动发布静态数据源（GitHub Pages）
-# 每天 UTC 20:30（北京时间次日 04:30）跑一次主站 11 榜与女频 2 榜，
+# 每天 UTC 15:10（北京时间 23:10）准备主站 11 榜与女频 2 榜，
+# 腾讯云随后预热缓存，并在次日北京时间 03:00 发布完整批次。
 # 产物自动发布到 gh-pages 分支 → https://<owner>.github.io/<repo>/ranks-apple.json
 name: daily-ranks
 
 on:
   schedule:
-    - cron: "30 20 * * *"
+    - cron: "10 15 * * *"
   workflow_dispatch: {}
 
 permissions:
